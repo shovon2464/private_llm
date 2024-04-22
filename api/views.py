@@ -6,6 +6,15 @@ from pgpt_python.client import PrivateGPTApi
 from django.core.files.uploadedfile import UploadedFile
 from django.http import JsonResponse
 import os
+from requests.exceptions import Timeout
+import subprocess
+from django.http import JsonResponse
+from django.views.decorators.csrf import csrf_exempt
+from django.utils.decorators import method_decorator
+from django.views import View
+import requests
+import json
+
 
 
 class IsActiveView(APIView):
@@ -14,28 +23,127 @@ class IsActiveView(APIView):
         return Response(data, status=status.HTTP_200_OK)
 
 class RetriveInfoView(APIView):
-    def post(self, reqeust):
-       document = self.request.data.get("document") 
-       print(document)
-       response_data = {"message": "The document is received"}
-       client = PrivateGPTApi(base_url="http://localhost:8001")
-       prompt_result = client.contextual_completions.prompt_completion(prompt=document)
-       return Response(prompt_result.choices[0].message.content, status=status.HTTP_200_OK)
+    def post(self, request):
+        # Retrieve the document from the request data
+        document = request.data.get("document")
+        queries = request.data.get("queries")
+
+        # Append retrieval instructions to the document
+        document += "What is the "+queries+"?"
+        print(document)
+
+        # Initialize the PrivateGPTApi client
+        client = PrivateGPTApi(base_url="http://localhost:8001")
+
+        try:
+            # Call the contextual completions endpoint with the document as prompt
+            prompt_result = client.contextual_completions.prompt_completion(prompt=document)
+
+            # Extract the content of the first choice from the response
+            completion_content = prompt_result.choices[0].message.content
+
+            # Prepare response data with the completion content
+            response_data = completion_content
+
+            # Return a successful response with the completion content
+            return Response(response_data, status=status.HTTP_200_OK)
+
+        except Exception as e:
+            # Handle exceptions (e.g., logging, error handling)
+            error_message = f"Error processing document: {str(e)}"
+            return Response({"error": error_message}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 class RetriveSummaryView(APIView):
-    def post(self, reqeust):
-       document = self.request.data.get("document") 
-       document += "Write a summary within two sentences"
-       response_data = {"message": "The document is received"}
-       client = PrivateGPTApi(base_url="http://localhost:8001")
-       prompt_result = client.contextual_completions.prompt_completion(prompt=document)
-       return Response(prompt_result.choices[0].message.content, status=status.HTTP_200_OK)
+    def post(self, request):
+        # Retrieve the document from the request data
+        document = request.data.get("document")
 
+        # Append instructions to write a summary
+        document += " Write a summary within 15 words"
+        print(document)
 
+        # Initialize the PrivateGPTApi client
+        client = PrivateGPTApi(base_url="http://localhost:8001")
 
+        try:
+            # Call the contextual completions endpoint with the document as prompt
+            prompt_result = client.contextual_completions.prompt_completion(prompt=document)
+
+            # Extract the content of the first choice from the response
+            summary_content = prompt_result.choices[0].message.content
+
+            # Prepare response data with the summary content
+            response_data = summary_content
+
+            # Return a successful response with the summary content
+            return Response(response_data, status=status.HTTP_200_OK)
+
+        except Exception as e:
+            # Handle exceptions (e.g., logging, error handling)
+            error_message = f"Error processing document: {str(e)}"
+            return Response({"error": error_message}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
   
+
+        
+        
+
+@method_decorator(csrf_exempt, name='dispatch')
+class RetriveInfoLatestView(View):
+    def post(self, request):
+        try:
+            model = "llama3"
+            prompt = request.POST.get('document')
+            queries = request.POST.get("queries")
+            prompt = prompt+" "+"What is the "+queries+"?"
+            print(prompt)
+            url = 'http://localhost:11434/api/generate'
+            
+            payload = {
+                "model": model,
+                "prompt": prompt,
+                "stream": False,
+            }
+
+            response = requests.post(url,json=payload)
+            
+            response = response.json()
+            response = response.get('response')
+            return JsonResponse(response,safe=False)
+
+
+        except Exception as e:
+            return JsonResponse({'error': str(e)}, status=400)
+        
+
+@method_decorator(csrf_exempt, name='dispatch')
+class RetriveSummaryLatestView(View):
+    def post(self, request):
+        try:
+            model = "llama3"
+            prompt = request.POST.get('document')
+            number_of_words = request.POST.get("number_of_words")
+            prompt = prompt+" "+"Write the summary of the whole paragraph within "+number_of_words+" words"
+            url = 'http://localhost:11434/api/generate'
+            
+            payload = {
+                "model": model,
+                "prompt": prompt,
+                "stream": False,
+            }
+
+            response = requests.post(url,json=payload)
+            
+            response = response.json()
+            response = response.get('response')
+            return JsonResponse(response,safe=False)
+
+
+        except Exception as e:
+            return JsonResponse({'error': str(e)}, status=400)
+        
+        
 class RecievePDFView(APIView):
     def post(self, request):
         # Check if 'document' key is present in the request data
