@@ -1,1 +1,1 @@
-ollama server
+ollama serve
