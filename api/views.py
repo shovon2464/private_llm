@@ -84,13 +84,11 @@ class RetriveSummaryView(APIView):
             return Response({"error": error_message}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
-  
-
-        
         
 
 @method_decorator(csrf_exempt, name='dispatch')
 class RetriveInfoLatestView(View):
+    #using ollma
     def post(self, request):
         try:
             model = "llama3"
@@ -119,12 +117,40 @@ class RetriveInfoLatestView(View):
 
 @method_decorator(csrf_exempt, name='dispatch')
 class RetriveSummaryLatestView(View):
+    #using ollma
     def post(self, request):
         try:
             model = "llama3"
             prompt = request.POST.get('document')
             number_of_words = request.POST.get("number_of_words")
             prompt = prompt+" "+"Write the summary of the whole paragraph within "+number_of_words+" words"
+            url = 'http://localhost:11434/api/generate'
+            
+            payload = {
+                "model": model,
+                "prompt": prompt,
+                "stream": False,
+            }
+
+            response = requests.post(url,json=payload)
+            
+            response = response.json()
+            response = response.get('response')
+            return JsonResponse(response,safe=False)
+
+
+        except Exception as e:
+            return JsonResponse({'error': str(e)}, status=400)
+
+@method_decorator(csrf_exempt, name='dispatch')
+class ClassifyNaturesView(View):
+    #using ollma
+    def post(self, request):
+        try:
+            model = "llama3"
+            prompt = request.POST.get('document')
+            natures = "classify the type of the document within these classes NBS- New business, RII - Rewrite, XLN - Cancellation, PCH - Policy Change, ACR / DBR - Billing issue / Final notice, EDT - Endorsement, REI - Reinstate"
+            prompt = prompt+" "+natures+" just classify, don't need to write reasoning"
             url = 'http://localhost:11434/api/generate'
             
             payload = {
