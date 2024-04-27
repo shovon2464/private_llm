@@ -96,7 +96,7 @@ class RetriveInfoLatestView(View):
             queries = request.POST.get("queries")
             prompt = prompt+" "+"What is the "+queries+"?"
             print(prompt)
-            url = 'http://localhost:11435/api/generate'
+            url = 'http://localhost:11434/api/generate'
             
             payload = {
                 "model": model,
@@ -124,7 +124,7 @@ class RetriveSummaryLatestView(View):
             prompt = request.POST.get('document')
             number_of_words = request.POST.get("number_of_words")
             prompt = prompt+" "+"Write the summary of the whole paragraph within "+number_of_words+" words"
-            url = 'http://localhost:11435/api/generate'
+            url = 'http://localhost:11434/api/generate'
             
             payload = {
                 "model": model,
@@ -151,7 +151,7 @@ class ClassifyNaturesView(View):
             prompt = request.POST.get('document')
             natures = "classify the type of the document within these classes NBS- New business, RII - Rewrite, XLN - Cancellation, PCH - Policy Change, ACR / DBR - Billing issue / Final notice, EDT - Endorsement, REI - Reinstate"
             prompt = prompt+" "+natures+" just classify, don't need to write reasoning"
-            url = 'http://localhost:11435/api/generate'
+            url = 'http://localhost:11434/api/generate'
             
             payload = {
                 "model": model,
