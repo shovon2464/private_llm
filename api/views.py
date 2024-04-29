@@ -95,6 +95,7 @@ class RetriveInfoLatestView(View):
             prompt = request.POST.get('document')
             queries = request.POST.get("queries")
             prompt = prompt+" "+"What is the "+queries+"?"
+            prompt += " Please do not add spaces or dot inside the numbers, they will not have commas or dots. Send them in JSON format. The accuracy is very important."
             print(prompt)
             url = 'http://localhost:11434/api/generate'
             
