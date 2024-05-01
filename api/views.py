@@ -96,7 +96,7 @@ class RetriveInfoLatestView(View):
             prompt = request.POST.get('document')
             queries = request.POST.get("queries")
             prompt = prompt+" "+"What is the "+queries+"?"
-            prompt += " Please do not add spaces or dot inside the numbers, they will not have commas or dots. Send them in JSON format without any intro. The accuracy is very important."
+            prompt += "The accuracy is very important."
             prompt += "Please be very careful, don't try to be fast, be accuarate. You are sending values that are half accurate, check the date formate properly. If you cannot find the value, just give None in the value of the key." 
             prompt += "The example of date can be 2/23/2024 or 23 Jan 2024. I only want the JSON and nothing else"
             print(prompt)
