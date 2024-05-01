@@ -96,7 +96,7 @@ class RetriveInfoLatestView(View):
             queries = request.POST.get("queries")
             prompt = prompt+" "+"What is the "+queries+"?"
             prompt += " Please do not add spaces or dot inside the numbers, they will not have commas or dots. Send them in JSON format without any intro. Only JSON nothing else. The accuracy is very important."
-            prompt += "Please be very careful, don't try to be fast, be accuarate. You sending values that are half accurate, check the date formate properly"
+            prompt += "Please be very careful, don't try to be fast, be accuarate. You sending values that are half accurate, check the date formate properly. If you cannot find the value, just give None in the value of the key."
             print(prompt)
             url = 'http://localhost:11434/api/generate'
             
