@@ -94,14 +94,14 @@ class RetriveInfoLatestView(View):
         try:
             model = MODEL
             prompt = request.POST.get('document')
+            print(request)
             queries = request.POST.get("queries")
             prompt = prompt+" "+"What is the "+queries+"?"
             prompt += "Please double check the policy numbers, it is the most important part. The accuracy is very important."
             prompt += "Please ensure there are no dots, spaces, or hyphens in broker id"
-            prompt += "The example of date can be 2/23/2024 or 23 Jan 2024. Folow the date format while extracting any date. Please ensure there are no dots, spaces, or hyphens in date. The expiry date is easy to find, try to find it first if you cannot find it but you found the start date then it is a range from starting date"
+            prompt += "The example of date can be 2/23/2024 or 23 Jan 2024. Folow the date format while extracting any date. Please ensure there are no dots, spaces, or hyphens in date. The expiry date or end date is easy to find,it is range as range of 1 year from start date."
             prompt += "Please be very careful, don't try to be fast, be accurate. You are sending values that are half accurate. If you cannot find the value, just give None in the value of the key."
-            prompt += "I only want the JSON and nothing else. An example response can be {\n\"PolicyNumber\": \"4V3130329\",\n\"BrokerID\": \"37763\",\n\"StartDate\": \"01 Mar 2024\",\n\"EndDate\": \"01 Mar 2025\"\n}\n}" 
-            print(prompt)
+            prompt += "I only want the JSON and nothing else. An example response can be {\n\"PolicyNumber\": \"4V3130329\",\n\"BrokerID\": \"37763\",\n\"StartDate\": \"01 Mar 2024\",\n\"EndDate\": \"01 Mar 2025\"\n}\n} > ```json" 
             url = URL
             
             payload = {
@@ -111,7 +111,6 @@ class RetriveInfoLatestView(View):
             }
 
             response = requests.post(url,json=payload)
-            
             response = response.json()
             response = response.get('response')
             return JsonResponse(response,safe=False)
