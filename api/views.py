@@ -96,9 +96,11 @@ class RetriveInfoLatestView(View):
             prompt = request.POST.get('document')
             queries = request.POST.get("queries")
             prompt = prompt+" "+"What is the "+queries+"?"
-            prompt += "Don't put any dots or spaces or hyphen (-) in the policy number. The accuracy is very important."
-            prompt += "Please be very careful, don't try to be fast, be accuarate. You are sending values that are half accurate, check the date formate properly. If you cannot find the value, just give None in the value of the key." 
-            prompt += "The example of date can be 2/23/2024 or 23 Jan 2024. Folow the date format while extracting any date. I only want the JSON and nothing else. Don't add things like Here is the JSON response:"
+            prompt += "Please double check the policy numbers, it is the most important part. The accuracy is very important."
+            prompt += "Please ensure there are no dots, spaces, or hyphens in broker id"
+            prompt += "The example of date can be 2/23/2024 or 23 Jan 2024. Folow the date format while extracting any date. Please ensure there are no dots, spaces, or hyphens in date. The expiry date is easy to find, try to find it first if you cannot find it but you found the start date then it is a range from starting date"
+            prompt += "Please be very careful, don't try to be fast, be accurate. You are sending values that are half accurate. If you cannot find the value, just give None in the value of the key."
+            prompt += "I only want the JSON and nothing else. An example response can be {\n\"PolicyNumber\": \"4V3130329\",\n\"BrokerID\": \"37763\",\n\"StartDate\": \"01 Mar 2024\",\n\"EndDate\": \"01 Mar 2025\"\n}\n}" 
             print(prompt)
             url = URL
             
@@ -140,6 +142,40 @@ class RetriveSummaryLatestView(View):
             
             response = response.json()
             response = response.get('response')
+            return JsonResponse(response,safe=False)
+
+
+        except Exception as e:
+            return JsonResponse({'error': str(e)}, status=400)
+
+@method_decorator(csrf_exempt, name='dispatch')
+class CommandGPTView(View):
+    #using ollma
+    def post(self, request):
+        try:
+            model = MODEL
+            prompt = request.POST.get('command')
+            prompt = prompt
+            url = "http://localhost:11434/api/chat"
+            
+            payload = {
+                "model": model,
+                "messages": [
+                {
+                "role": "user",
+                "content": prompt
+                }
+            ],
+
+                "stream": False,
+            }
+
+            response = requests.post(url,json=payload)
+            
+            print(response)
+            response = response.json()
+            response = response.get('message')
+            response = response['content']
             return JsonResponse(response,safe=False)
 
 
