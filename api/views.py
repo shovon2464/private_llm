@@ -189,7 +189,7 @@ class ClassifyNaturesView(View):
             model = MODEL
             prompt = request.POST.get('document')
             natures = "classify the type of the document within these classes NBS- New business, RII - Rewrite, XLN - Cancellation, PCH - Policy Change, ACR / DBR - Billing issue / Final notice, EDT - Endorsement, REI - Reinstate"
-            prompt = prompt+" "+natures+" just classify, don't need to write reasoning. Return it in JSON < '''json"
+            prompt = prompt+" "+natures+" just classify whole text in only one type in short form, don't need to write reasoning. Example can be {\n\"type\": \"PCH \".Return it in JSON < '''json"
 
             url = URL
             
