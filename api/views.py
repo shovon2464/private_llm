@@ -14,6 +14,9 @@ from django.utils.decorators import method_decorator
 from django.views import View
 import requests
 import json
+import whisper
+from rest_framework.renderers import JSONRenderer
+import base64
 
 MODEL = "llama3"
 URL = 'http://localhost:11434/api/generate'
@@ -96,10 +99,11 @@ class RetriveInfoLatestView(View):
             prompt = request.POST.get('document')
             print(request)
             queries = request.POST.get("queries")
-            prompt = prompt+" "+"What is the "+queries+"?"
+            prompt += "\nThe text given above is a scanned document of insurance but the scanning is not perfect, that's why the texts are scattered. I need your intelligence to extract the following keywords "
+            prompt ="Please find the following keywords"+queries
             prompt += "Please double check the policy numbers, it is the most important part. The accuracy is very important."
             prompt += "Please ensure there are no dots, spaces, or hyphens in broker id"
-            prompt += "The example of date can be 2/23/2024 or 23 Jan 2024. Folow the date format while extracting any date. Please ensure there are no dots, spaces, or hyphens in date. The expiry date or end date is easy to find,it is range as range of 1 year from start date."
+            prompt += "The example of date format can be 23 Jan 2024. Folow this date format while extracting any date, if required reformat but be consistent. Please ensure there are no dots, spaces, or hyphens in date. The expiry date or end date is easy to find,it is range as range of 1 year from start date. But there might be explicity written expiry date"
             prompt += "Please be very careful, don't try to be fast, be accurate. You are sending values that are half accurate. If you cannot find the value, just give None in the value of the key."
             prompt += "I only want the JSON and nothing else. An example response can be {\n\"PolicyNumber\": \"4V3130329\",\n\"BrokerID\": \"37763\",\n\"StartDate\": \"01 Mar 2024\",\n\"EndDate\": \"01 Mar 2025\"\n}\n} > ```json" 
             url = URL
@@ -236,3 +240,29 @@ class RecievePDFView(APIView):
         else:
             # If 'document' key is missing in the request data, return an error response
             return Response({"error": "No file uploaded. Please provide a PDF file."}, status=status.HTTP_400_BAD_REQUEST)
+             
+
+
+@method_decorator(csrf_exempt, name='dispatch')
+class MakeSpeechToTextView(APIView):
+    def post(self, request):
+        base64_string = request.data.get("audio_file")
+        audio_data = base64.b64decode(base64_string)
+        with open("output.wav","wb") as audio_file:
+            audio_file.write(audio_data)
+        model = whisper.load_model('base')
+        
+        #load audio and pad/trim it to fit 30 seconds
+        audio = whisper.load_audio("output.wav")
+        audio = whisper.pad_or_trim(audio)
+        
+        #make log-Mel spectrogram and move to the same device as the model
+        mel = whisper.log_mel_spectrogram(audio).to(model.device)
+        
+        #decode the audio
+        options = whisper.DecodingOptions()
+        result = whisper.decode(model,mel,options)
+        #result = model.transcribe('output.wav', fp16=False)
+        response_data = result.text
+        return Response(response_data, status=status.HTTP_200_OK)
+        
