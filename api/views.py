@@ -133,7 +133,7 @@ class RetriveSummaryLatestView(View):
             model = MODEL
             prompt = request.POST.get('document')
             number_of_words = request.POST.get("number_of_words")
-            prompt = prompt+" "+"Write the summary of the whole paragraph within "+number_of_words+" words. "+"Try to ignore the people names."
+            prompt = prompt+" "+"Write the summary of the whole paragraph within "+number_of_words+" words. "+"Try to ignore the people names. This is a conversation on insurance so communication or network issues should also be ignored."
             url = URL
             
             payload = {
