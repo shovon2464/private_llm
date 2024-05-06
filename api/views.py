@@ -18,6 +18,7 @@ import whisper
 from rest_framework.renderers import JSONRenderer
 import base64
 
+
 MODEL = "llama3"
 URL = 'http://localhost:11434/api/generate'
 
@@ -246,23 +247,41 @@ class RecievePDFView(APIView):
 @method_decorator(csrf_exempt, name='dispatch')
 class MakeSpeechToTextView(APIView):
     def post(self, request):
-        base64_string = request.data.get("audio_file")
-        audio_data = base64.b64decode(base64_string)
-        with open("output.wav","wb") as audio_file:
-            audio_file.write(audio_data)
+        audio: UploadedFile = request.FILES["audio_file"]      
+        # Save the uploaded PDF file to a specific location
+        file_path = './output.wav'
+        with open(file_path, 'wb') as file:
+                    for chunk in audio.chunks():
+                        file.write(chunk)
         model = whisper.load_model('base')
         
-        #load audio and pad/trim it to fit 30 seconds
-        audio = whisper.load_audio("output.wav")
-        audio = whisper.pad_or_trim(audio)
         
-        #make log-Mel spectrogram and move to the same device as the model
-        mel = whisper.log_mel_spectrogram(audio).to(model.device)
+        result = model.transcribe('voice.wav', fp16=False)
+
+        # #load audio and pad/trim it to fit 30 seconds
+        # audio = whisper.load_audio("output.wav")
         
-        #decode the audio
-        options = whisper.DecodingOptions()
-        result = whisper.decode(model,mel,options)
+        # #make log-Mel spectrogram and move to the same device as the model
+        # mel = whisper.log_mel_spectrogram(audio).to(model.device)
+        
+        # #decode the audio
+        # options = whisper.DecodingOptions()
+        # result = whisper.decode(model,mel,options)
         #result = model.transcribe('output.wav', fp16=False)
-        response_data = result.text
-        return Response(response_data, status=status.HTTP_200_OK)
+        print(result['text'])
+        transcription = result["text"]
+        url2 = "https://cogito.brokeraid.top/api/retrivesummarylatest/"
+        payload = {
+        "document":result['text'],
+        "number_of_words":"30"
+        }
+        response = requests.post(url2, data=payload)
+        
+        transcription = result['text']
+        summary = response.json()
+        data = {
+            'transcription': transcription,
+            'summary': summary
+        }
+        return Response(data, status=status.HTTP_200_OK)
         
