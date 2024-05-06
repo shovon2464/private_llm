@@ -133,7 +133,7 @@ class RetriveSummaryLatestView(View):
             model = MODEL
             prompt = request.POST.get('document')
             number_of_words = request.POST.get("number_of_words")
-            prompt = prompt+" "+"Write the summary of the whole paragraph within "+number_of_words+" words"
+            prompt = prompt+" "+"Write the summary of the whole paragraph within "+number_of_words+" words. "+"Try to ignore the people names."
             url = URL
             
             payload = {
@@ -280,7 +280,6 @@ class MakeSpeechToTextView(APIView):
         transcription = result['text']
         summary = response.json()
         data = {
-            'transcription': transcription,
             'summary': summary
         }
         return Response(data, status=status.HTTP_200_OK)
