@@ -1,7 +1,7 @@
 import requests
 import json
 
-url = "http://127.0.0.1:8000/api/speechtotext/"
+url = "https://cogito.brokeraid.top/api/speechtotext/"
 
 import base64
 with open("voice.wav","rb") as audio_file:

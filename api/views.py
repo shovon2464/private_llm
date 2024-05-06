@@ -253,10 +253,10 @@ class MakeSpeechToTextView(APIView):
         with open(file_path, 'wb') as file:
                     for chunk in audio.chunks():
                         file.write(chunk)
-        model = whisper.load_model('base')
+        model = whisper.load_model('small.en')
         
         
-        result = model.transcribe('voice.wav', fp16=False)
+        result = model.transcribe('output.wav', fp16=False)
 
         # #load audio and pad/trim it to fit 30 seconds
         # audio = whisper.load_audio("output.wav")
@@ -268,7 +268,7 @@ class MakeSpeechToTextView(APIView):
         # options = whisper.DecodingOptions()
         # result = whisper.decode(model,mel,options)
         #result = model.transcribe('output.wav', fp16=False)
-        print(result['text'])
+
         transcription = result["text"]
         url2 = "https://cogito.brokeraid.top/api/retrivesummarylatest/"
         payload = {
