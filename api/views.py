@@ -294,5 +294,6 @@ class MakeSpeechToTextView(APIView):
             "transcription": transcription,
             "summary": summary
         }
+        data - json.loads(data)
         return Response(data, status=status.HTTP_200_OK)
         
