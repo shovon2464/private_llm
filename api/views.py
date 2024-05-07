@@ -280,8 +280,8 @@ class MakeSpeechToTextView(APIView):
         transcription = result['text']
         summary = response.json()
         data = {
-            'transcription': transcription,
-            'summary': summary
+            "transcription": transcription,
+            "summary": summary
         }
         return Response(data, status=status.HTTP_200_OK)
         
