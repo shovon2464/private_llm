@@ -134,6 +134,7 @@ class RetriveSummaryLatestView(View):
             prompt = request.POST.get('document')
             number_of_words = request.POST.get("number_of_words")
             prompt = prompt+" "+"Write the summary of the whole paragraph within "+number_of_words+" words. "+"Try to ignore the people names. This is a conversation on insurance so communication or network issues should also be ignored."
+            prompt += "return it in a json format < '''json"
             url = URL
             
             payload = {
@@ -279,6 +280,16 @@ class MakeSpeechToTextView(APIView):
         
         transcription = result['text']
         summary = response.json()
+        
+        start_index = summary .find('{') 
+        end_index = summary.rfind('}')+1
+
+        # Extract the JSON string
+        json_string = summary[start_index:end_index]
+
+        # Parse the JSON string
+        summary = json.loads(json_string)
+        summary = summary["summary"]
         data = {
             "transcription": transcription,
             "summary": summary
