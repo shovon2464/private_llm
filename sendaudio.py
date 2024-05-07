@@ -17,6 +17,7 @@ with open("voice.wav","rb") as audio_file:
     response = requests.post(url, files=payload)
             
     response = response.json()
+    response = json.dumps(response)
     print(response)  
 
     
