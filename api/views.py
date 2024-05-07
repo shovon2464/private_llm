@@ -274,7 +274,7 @@ class MakeSpeechToTextView(APIView):
         url2 = "https://cogito.brokeraid.top/api/retrivesummarylatest/"
         payload = {
         "document":result['text'],
-        "number_of_words":"30"
+        "number_of_words":"20"
         }
         response = requests.post(url2, data=payload)
         
