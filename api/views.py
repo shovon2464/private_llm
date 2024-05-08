@@ -22,7 +22,6 @@ import random
 
 MODEL = "llama3"
 URL = 'http://localhost:11434/api/generate'
-random_integer_checkpoint = 0
 
 class IsActiveView(APIView):
     def get(self, request):
@@ -261,10 +260,6 @@ class RecievePDFView(APIView):
 class MakeSpeechToTextView(APIView):
     def post(self, request):
         random_integer = random.randint(1, 10000000)
-        while random_integer == random_integer_checkpoint:
-            random_integer = random.randint(1, 10000000)
-        
-        random_integer_checkpoint = random_integer
         with open("./checkprocess.txt", "w") as file:
             file.write(str(random_integer))
         audio: UploadedFile = request.FILES["audio_file"]      
