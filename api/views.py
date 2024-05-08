@@ -261,7 +261,7 @@ class MakeSpeechToTextView(APIView):
     def post(self, request):
         random_integer = random.randint(1, 10000000)
         with open("./checkprocess.txt", "w") as file:
-            file.write(random_integer)
+            file.write(str(random_integer))
         audio: UploadedFile = request.FILES["audio_file"]      
         # Save the uploaded PDF file to a specific location
         file_path = './output.wav'
