@@ -17,6 +17,7 @@ import json
 import whisper
 from rest_framework.renderers import JSONRenderer
 import base64
+import random
 
 
 MODEL = "llama3"
@@ -194,8 +195,18 @@ class ClassifyNaturesView(View):
         try:
             model = MODEL
             prompt = request.POST.get('document')
-            natures = "classify the type of the document within these classes NBS- New business, RII - Rewrite, XLN - Cancellation, PCH - Policy Change, ACR / DBR - Billing issue / Final notice, EDT - Endorsement, REI - Reinstate"
-            prompt = prompt+" "+natures+" just classify whole text in only one type in short form, don't need to write reasoning. Example can be {\n\"type\": \"PCH \".Return it in JSON < '''json"
+            prompt += "This is an insurance document. You need to classify it in various classes. "
+            prompt += "If the document type is New Business then classify it to NBS. "
+            prompt += "If the document type is Cancellation then classify it to XLN. "
+            prompt += "If the document type is Policy Change then classify it to PCH. "
+            prompt += "If the document type is Billing issue then classify it to ACR. "
+            prompt += "If the document type is Endorsement then classify it to EDT. There is a difference between EDT and NBS, try to differencitate."
+            prompt += "If the document type is Final notice then classify it to DBR. There is a difference between DBR and ACR, try to differencitate. "
+            prompt += "If the document type is Renewal then classify it to RWL. "
+            prompt += "If the document type is renewal issued, client not happy and  need to change then classify it to RII. "
+            prompt += "If the document type is reinstate after cancellation non pay then classify it to REI. "
+            #natures = "classify the type of the document within these classes NBS- New business, RII - Rewrite, XLN - Cancellation, PCH - Policy Change, ACR - Billing issue,  DBR - Final notice, EDT - Endorsement, REI - Reinstate"
+            prompt += "just classify whole text in only one type in short form, don't need to write reasoning. Example can be {\n\"type\": \"PCH \".Return it in JSON < '''json"
 
             url = URL
             
@@ -248,6 +259,9 @@ class RecievePDFView(APIView):
 @method_decorator(csrf_exempt, name='dispatch')
 class MakeSpeechToTextView(APIView):
     def post(self, request):
+        random_integer = random.randint(1, 10000000)
+        with open("./checkprocess.txt", "w") as file:
+            file.write(random_integer)
         audio: UploadedFile = request.FILES["audio_file"]      
         # Save the uploaded PDF file to a specific location
         file_path = './output.wav'
