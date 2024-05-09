@@ -18,6 +18,7 @@ import whisper
 from rest_framework.renderers import JSONRenderer
 import base64
 import random
+from .customfunctions import languagetest,translatelanguage
 
 
 MODEL = "llama3"
@@ -195,7 +196,7 @@ class ClassifyNaturesView(View):
         try:
             model = MODEL
             prompt = request.POST.get('document')
-            prompt += "This is an insurance document. You need to classify it in various classes. "
+            prompt += "This is an insurance document. You need to classify it in various natures classes. "
             prompt += "If the document type is New Business then classify it to NBS. "
             prompt += "If the document type is Cancellation then classify it to XLN. "
             prompt += "If the document changes the policy then classify it to PCH. Don't get confused with NBS. Be careful while deciding. "
@@ -206,7 +207,7 @@ class ClassifyNaturesView(View):
             prompt += "If the document type is renewal issued, client not happy and  need to change then classify it to RII. "
             prompt += "If the document type is reinstate after cancellation non pay then classify it to REI. "
             #natures = "classify the type of the document within these classes NBS- New business, RII - Rewrite, XLN - Cancellation, PCH - Policy Change, ACR - Billing issue,  DBR - Final notice, EDT - Endorsement, REI - Reinstate"
-            prompt += "just classify whole text in only one type in short form, don't need to write reasoning. Example can be {\n\"type\": \"PCH \".Return it in JSON < '''json"
+            prompt += "just classify whole text in only one type in short form, don't need to write reasoning. Example can be {\n\"type\": \"PCH \"}.Return it in JSON < '''json"
 
             url = URL
             
@@ -226,6 +227,7 @@ class ClassifyNaturesView(View):
         except Exception as e:
             return JsonResponse({'error': str(e)}, status=400)
         
+  
         
 class RecievePDFView(APIView):
     def post(self, request):
@@ -256,6 +258,8 @@ class RecievePDFView(APIView):
              
 
 
+
+
 @method_decorator(csrf_exempt, name='dispatch')
 class MakeSpeechToTextView(APIView):
     def post(self, request):
@@ -268,7 +272,7 @@ class MakeSpeechToTextView(APIView):
         with open(file_path, 'wb') as file:
                     for chunk in audio.chunks():
                         file.write(chunk)
-        model = whisper.load_model('small.en')
+        model = whisper.load_model('medium')
         
         
         result = model.transcribe('output.wav', fp16=False)
@@ -285,16 +289,24 @@ class MakeSpeechToTextView(APIView):
         #result = model.transcribe('output.wav', fp16=False)
 
         transcription = result["text"]
+        language = languagetest(transcription)
+        language = json.loads(language)
+        language = language["language"]
+        
+        if "en" not in language:
+            translation = translatelanguage(transcription)
+            translation = json.loads(translation)
+            translation = translation["translation"]
+            transcription = translation
+        
+        
         url2 = "https://cogito.brokeraid.top/api/retrivesummarylatest/"
         payload = {
-        "document":result['text'],
+        "document":transcription,
         "number_of_words":"20"
         }
-        response = requests.post(url2, data=payload)
-        
-        transcription = result['text']
+        response = requests.post(url2, data=payload)      
         summary = response.json()
-        
         start_index = summary .find('{') 
         end_index = summary.rfind('}')+1
 
@@ -310,4 +322,8 @@ class MakeSpeechToTextView(APIView):
         }
         json.dumps(data)
         return Response(data, status=status.HTTP_200_OK)
+    
+
+
+
         
