@@ -292,7 +292,6 @@ class MakeSpeechToTextView(APIView):
         language = languagetest(transcription)
         language = json.loads(language)
         language = language["language"]
-        print(language)
         
         if "en" not in language:
             model = whisper.load_model('medium')
