@@ -1,8 +1,8 @@
 import requests
 import json
 
-#url = "https://cogito.brokeraid.top/api/speechtotext/"
-url = "http://127.0.0.1:8000/api/speechtotext/"
+url = "https://cogito.brokeraid.top/api/speechtotext/"
+#url = "http://127.0.0.1:8000/api/speechtotext/"
 
 import base64
 with open("chinese.mp3","rb") as audio_file:

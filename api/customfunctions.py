@@ -17,6 +17,7 @@ def languagetest(transcription):
 
     # Extract the JSON string
     response = response[start_index:end_index]
+    print(response)
     return response
 
 def translatelanguage(transcription):
