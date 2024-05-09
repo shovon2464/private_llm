@@ -272,7 +272,7 @@ class MakeSpeechToTextView(APIView):
         with open(file_path, 'wb') as file:
                     for chunk in audio.chunks():
                         file.write(chunk)
-        model = whisper.load_model('medium')
+        model = whisper.load_model('tiny')
         
         
         result = model.transcribe('output.wav', fp16=False)
@@ -292,13 +292,20 @@ class MakeSpeechToTextView(APIView):
         language = languagetest(transcription)
         language = json.loads(language)
         language = language["language"]
+        print(language)
         
         if "en" not in language:
+            model = whisper.load_model('medium')
+            result = model.transcribe('output.wav', fp16=False)
+            transcription = result["text"]
             translation = translatelanguage(transcription)
             translation = json.loads(translation)
             translation = translation["translation"]
             transcription = translation
-        
+        else:
+            model = whisper.load_model('small.en')
+            result = model.transcribe('output.wav', fp16=False)
+            transcription = result["text"]
         
         url2 = "https://cogito.brokeraid.top/api/retrivesummarylatest/"
         payload = {

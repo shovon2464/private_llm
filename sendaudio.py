@@ -5,7 +5,7 @@ import json
 url = "http://127.0.0.1:8000/api/speechtotext/"
 
 import base64
-with open("french.mp3","rb") as audio_file:
+with open("chinese.mp3","rb") as audio_file:
     # Read the content of the audio file as binary data
     #audio_data = audio_file.read()
     # Encode the binary data using Base64 encoding
