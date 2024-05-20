@@ -1,5 +1,6 @@
 import requests
 MODEL = "llama3"
+#MODEL = "llama3:8b-instruct-q6_k"
 URL = 'http://localhost:11434/api/generate'
 def languagetest(transcription):
     prompt = transcription[0:200] + "What is the language of it. For example if the language is english please return {\n\"language\": \"eng\"}.Return it in JSON < '''json"

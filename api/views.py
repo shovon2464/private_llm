@@ -20,8 +20,8 @@ import base64
 import random
 from .customfunctions import languagetest,translatelanguage
 
-
 MODEL = "llama3"
+#MODEL = "llama3:8b-instruct-q6_k"
 URL = 'http://localhost:11434/api/generate'
 
 class IsActiveView(APIView):
@@ -306,7 +306,7 @@ class MakeSpeechToTextView(APIView):
             result = model.transcribe('output.wav', fp16=False)
             transcription = result["text"]
         
-        url2 = "https://cogito.brokeraid.top/api/retrivesummarylatest/"
+        url2 = "http://127.0.0.1:8000/api/retrivesummarylatest/"
         payload = {
         "document":transcription,
         "number_of_words":"20"
