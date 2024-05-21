@@ -306,7 +306,7 @@ class MakeSpeechToTextView(APIView):
             result = model.transcribe('output.wav', fp16=False)
             transcription = result["text"]
         
-        url2 = "http://127.0.0.1:8000/api/retrivesummarylatest/"
+        url2 = "http://192.168.0.64:8000/api/retrivesummarylatest/"
         payload = {
         "document":transcription,
         "number_of_words":"20"
