@@ -194,7 +194,7 @@ class ClassifyNaturesView(View):
     #using ollma
     def post(self, request):
         try:
-            model = MODEL
+            model = "llama3natures"
             prompt = request.POST.get('document')
             prompt += "This is an insurance document. You need to classify it in various natures classes. "
             prompt += "If the document type is New Business then classify it to NBS. "
