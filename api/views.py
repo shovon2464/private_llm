@@ -20,8 +20,8 @@ import base64
 import random
 from .customfunctions import languagetest,translatelanguage
 
-#MODEL = "llama3"
-MODEL = "mixtral:8x22b"
+MODEL = "llama3:8b-instruct-q8_0"
+#MODEL = "mixtral:8x22b"
 URL = 'http://localhost:11434/api/generate'
 
 class IsActiveView(APIView):
@@ -194,7 +194,7 @@ class ClassifyNaturesView(View):
     #using ollma
     def post(self, request):
         try:
-            model = "llama3natures"
+            model = MODEL
             prompt = request.POST.get('document')
             prompt += "This is an insurance document. You need to classify it in various natures classes. "
             prompt += "If the document type is New Business then classify it to NBS. "
@@ -208,8 +208,10 @@ class ClassifyNaturesView(View):
             prompt += "If the document type is reinstate after cancellation non pay then classify it to REI. "
             #natures = "classify the type of the document within these classes NBS- New business, RII - Rewrite, XLN - Cancellation, PCH - Policy Change, ACR - Billing issue,  DBR - Final notice, EDT - Endorsement, REI - Reinstate"
             prompt += "just classify whole text in only one type in short form, don't need to write reasoning. Example can be {\n\"type\": \"PCH \"}.Return it in JSON < '''json"
+            
 
             url = URL
+            print(url)
             
             payload = {
                 "model": model,
@@ -329,7 +331,52 @@ class MakeSpeechToTextView(APIView):
         json.dumps(data)
         return Response(data, status=status.HTTP_200_OK)
     
+@method_decorator(csrf_exempt, name='dispatch')
+class RedactTextView(View):
+    #using ollma
+    def post(self, request):
+        try:
+            model = MODEL
+            prompt = request.POST.get('document')
+            prompt += "This is a transcript of a conversation between an insurance agent and customer. "
+            prompt += "I want you to carefully remove all the personal information. "
+            prompt += "The information can be names, SIN number, mobile number, address, policy number, date of birth, etc. "
+            prompt += "If the document type is reinstate after cancellation non pay then classify it to REI. "
+            #natures = "classify the type of the document within these classes NBS- New business, RII - Rewrite, XLN - Cancellation, PCH - Policy Change, ACR - Billing issue,  DBR - Final notice, EDT - Endorsement, REI - Reinstate"
+            prompt += "After removing them send the redacted document in a json format.. Example can be {\n\"readacted\": \"just a random example of redacted text\"}.Return it in JSON < '''json"
+            url = URL
+            
+            payload = {
+                "model": model,
+                "prompt": prompt,
+                "stream": False,
+            }
 
+            response = requests.post(url,json=payload)
+            response = response.json()
+            response = response.get('response')
+            try:
+                # Find the start and end indices of the JSON string within the triple backticks
+                start_index = response.find('{') 
+                end_index = response.rfind('}')+1
+
+                # Extract the JSON string
+                json_string = response[start_index:end_index]
+
+                # Parse the JSON string
+                response = json.loads(json_string)
+                
+
+            except Exception as e:
+                print("No valid JSON data found:", e)
+            
+            
+            
+            return JsonResponse(response,safe=False)
+
+
+        except Exception as e:
+            return JsonResponse({'error': str(e)}, status=400)
 
 
         

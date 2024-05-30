@@ -1,6 +1,6 @@
 from django.urls import path
 from .views import IsActiveView,RetriveInfoView,RecievePDFView,RetriveSummaryView,RetriveInfoLatestView,RetriveSummaryLatestView,ClassifyNaturesView
-from .views import CommandGPTView,MakeSpeechToTextView
+from .views import CommandGPTView,MakeSpeechToTextView,RedactTextView
 
 urlpatterns = [
     path('isactive/', IsActiveView.as_view(), name='is-active'),
@@ -11,5 +11,6 @@ urlpatterns = [
     path('classifynatures/', ClassifyNaturesView.as_view(), name='classify-natures-llama3'),
     path('commandgpt/', CommandGPTView.as_view(), name='command-gpt'),
     path('speechtotext/', MakeSpeechToTextView.as_view(), name='speech-to-text'),
+    path('redacttext/', RedactTextView.as_view(), name='redact-text'),
     path('recievepdf/', RecievePDFView.as_view(), name='receive-pdf')
 ]
