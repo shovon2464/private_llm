@@ -190,7 +190,7 @@ class CommandGPTView(View):
             return JsonResponse({'error': str(e)}, status=400)
 
 @method_decorator(csrf_exempt, name='dispatch')
-class ClassifyNaturesView(View):
+class ClassifyNaturesView2(View):
     #using ollma
     def post(self, request):
         try:
@@ -229,7 +229,28 @@ class ClassifyNaturesView(View):
         except Exception as e:
             return JsonResponse({'error': str(e)}, status=400)
         
-  
+
+@method_decorator(csrf_exempt, name='dispatch')
+class ClassifyNaturesView(View):
+    #using ollma
+    def post(self, request):
+        try:
+            prompt = request.POST.get('document')
+            url = "http://192.168.0.61:11000/api/classifynatures/"
+            
+            payload = {
+                "document": prompt,
+            }
+
+            response = requests.post(url,json=payload)
+            
+            response = response.json()
+            response = response.get('response')
+            return JsonResponse(response,safe=False)
+
+
+        except Exception as e:
+            return JsonResponse({'error': str(e)}, status=400)
         
 class RecievePDFView(APIView):
     def post(self, request):
