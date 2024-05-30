@@ -236,14 +236,13 @@ class ClassifyNaturesView(View):
     def post(self, request):
         try:
             prompt = request.POST.get('document')
-            print(prompt)
             url = "http://192.168.0.61:11000/api/classifynatures/"
             
             payload = {
                 "document": prompt,
             }
 
-            response = requests.post(url,json=payload)
+            response = requests.post(url,data=payload)
             
             response = response.json()
             response = response.get('response')
