@@ -20,8 +20,8 @@ import base64
 import random
 from .customfunctions import languagetest,translatelanguage
 
-MODEL = "llama3:8b-instruct-q8_0"
-#MODEL = "mixtral:8x22b"
+#MODEL = "llama3:8b-instruct-q8_0"
+MODEL = "llama3"
 URL = 'http://localhost:11434/api/generate'
 
 class IsActiveView(APIView):
