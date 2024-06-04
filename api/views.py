@@ -302,6 +302,7 @@ class MakeSpeechToTextView(APIView):
         
         segments, _ = model.transcribe("output.wav")
         segments = list(segments)
+        print(segments)
 
 
         transcription = result["text"]
