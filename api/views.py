@@ -293,6 +293,8 @@ class MakeSpeechToTextView(APIView):
         with open(file_path, 'wb') as file:
                     for chunk in audio.chunks():
                         file.write(chunk)
+                        
+        print("we are here")
         model_size = "large-v3"
         model = WhisperModel(model_size, device="cuda", compute_type="float16")
         segments, info = model.transcribe("output.wav", beam_size=5)
