@@ -303,34 +303,15 @@ class MakeSpeechToTextView(APIView):
         print("Detected language '%s' with probability %f" % (info.language, info.language_probability))
         print(transcription)
         
-
         
         if "en" != info.language or ( "en" == info.language and info.language_probability<0.97):
-            print("Hi")
             translation = translatelanguage(transcription)
             translation = json.loads(translation)
             translation = translation["translation"]
             transcription = translation
         
-        url2 = "http://192.168.0.61:8000/api/retrivesummarylatest/"
-        payload = {
-        "document":transcription,
-        "number_of_words":"20"
-        }
-        response = requests.post(url2, data=payload)      
-        summary = response.json()
-        start_index = summary .find('{') 
-        end_index = summary.rfind('}')+1
-
-        # Extract the JSON string
-        json_string = summary[start_index:end_index]
-
-        # Parse the JSON string
-        summary = json.loads(json_string)
-        summary = summary["summary"]
         data = {
-            "transcription": transcription,
-            "summary": summary
+            "transcription": transcription
         }
         json.dumps(data)
         return Response(data, status=status.HTTP_200_OK)
