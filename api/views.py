@@ -312,7 +312,7 @@ class MakeSpeechToTextView(APIView):
             translation = translation["translation"]
             transcription = translation
         
-        url2 = "http://192.168.0.64:8000/api/retrivesummarylatest/"
+        url2 = "http://192.168.0.61:8000/api/retrivesummarylatest/"
         payload = {
         "document":transcription,
         "number_of_words":"20"
