@@ -19,6 +19,8 @@ from rest_framework.renderers import JSONRenderer
 import base64
 import random
 from .customfunctions import languagetest,translatelanguage
+from faster_whisper import WhisperModel
+os.environ["KMP_DUPLICATE_LIB_OK"]="TRUE"
 
 #MODEL = "llama3:8b-instruct-q8_0"
 MODEL = "llama3"
@@ -245,7 +247,6 @@ class ClassifyNaturesView(View):
             response = requests.post(url,data=payload)
             
             response = response.json()
-            response = response.get('response')
             return JsonResponse(response,safe=False)
 
 
@@ -280,11 +281,71 @@ class RecievePDFView(APIView):
             return Response({"error": "No file uploaded. Please provide a PDF file."}, status=status.HTTP_400_BAD_REQUEST)
              
 
+@method_decorator(csrf_exempt, name='dispatch')
+class MakeSpeechToTextView(APIView):
+    def post(self, request):
+        random_integer = random.randint(1, 10000000)
+        with open("./checkprocess.txt", "w") as file:
+            file.write(str(random_integer))
+        audio: UploadedFile = request.FILES["audio_file"]      
+        # Save the uploaded PDF file to a specific location
+        file_path = './output.wav'
+        with open(file_path, 'wb') as file:
+                    for chunk in audio.chunks():
+                        file.write(chunk)
+        model_size = "large-v3"
+        model = WhisperModel(model_size, device="cuda", compute_type="float16")
+        segments, info = model.transcribe("output.wav", beam_size=5)
 
+        print("Detected language '%s' with probability %f" % (info.language, info.language_probability))
+        
+        result = model.transcribe('output.wav')
+
+
+        transcription = result["text"]
+        language = languagetest(transcription)
+        language = json.loads(language)
+        language = language["language"]
+        
+        if "en" not in language:
+            model = whisper.load_model('medium')
+            result = model.transcribe('output.wav', fp16=False)
+            transcription = result["text"]
+            translation = translatelanguage(transcription)
+            translation = json.loads(translation)
+            translation = translation["translation"]
+            transcription = translation
+        else:
+            model = whisper.load_model('small.en')
+            result = model.transcribe('output.wav', fp16=False)
+            transcription = result["text"]
+        
+        url2 = "http://192.168.0.64:8000/api/retrivesummarylatest/"
+        payload = {
+        "document":transcription,
+        "number_of_words":"20"
+        }
+        response = requests.post(url2, data=payload)      
+        summary = response.json()
+        start_index = summary .find('{') 
+        end_index = summary.rfind('}')+1
+
+        # Extract the JSON string
+        json_string = summary[start_index:end_index]
+
+        # Parse the JSON string
+        summary = json.loads(json_string)
+        summary = summary["summary"]
+        data = {
+            "transcription": transcription,
+            "summary": summary
+        }
+        json.dumps(data)
+        return Response(data, status=status.HTTP_200_OK)
 
 
 @method_decorator(csrf_exempt, name='dispatch')
-class MakeSpeechToTextView(APIView):
+class MakeSpeechToTextView2(APIView):
     def post(self, request):
         random_integer = random.randint(1, 10000000)
         with open("./checkprocess.txt", "w") as file:
