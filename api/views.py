@@ -297,12 +297,11 @@ class MakeSpeechToTextView(APIView):
         model_size = "large-v3"
         model = WhisperModel(model_size, device="cuda", compute_type="float16")
         segments, info = model.transcribe("output.wav", beam_size=5)
+        segments = list(segments)
+        print(segments[3][6:])
 
         print("Detected language '%s' with probability %f" % (info.language, info.language_probability))
         
-        segments, _ = model.transcribe("output.wav")
-        segments = list(segments)
-        print(segments)
 
 
         transcription = result["text"]
