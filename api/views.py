@@ -300,7 +300,7 @@ class MakeSpeechToTextView(APIView):
 
         print("Detected language '%s' with probability %f" % (info.language, info.language_probability))
         
-        segments, _ = model.transcribe("audio.mp3")
+        segments, _ = model.transcribe("output.wav")
         segments = list(segments)
 
 
