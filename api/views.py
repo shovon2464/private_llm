@@ -18,7 +18,7 @@ import whisper
 from rest_framework.renderers import JSONRenderer
 import base64
 import random
-from .customfunctions import languagetest,translatelanguage
+from .customfunctions import languagetest,translatelanguage,makesummary
 from faster_whisper import WhisperModel
 os.environ["KMP_DUPLICATE_LIB_OK"]="TRUE"
 
@@ -309,9 +309,12 @@ class MakeSpeechToTextView(APIView):
             translation = json.loads(translation)
             translation = translation["translation"]
             transcription = translation
+            
+        summary = makesummary(transcription)
         
         data = {
-            "transcription": transcription
+            "transcription": transcription,
+            "summary":summary
         }
         json.dumps(data)
         return Response(data, status=status.HTTP_200_OK)
