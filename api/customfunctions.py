@@ -41,7 +41,7 @@ def translatelanguage(transcription):
     return response
 
 def makesummary(trascription):
-    propt = "You are an assistant who would make a summary of the sentence in 15 words. This is a phone transcription so there might be conversation about other things, but I want summary about the most important parts of the conversation. Then things that affects the business."
+    prompt = "You are an assistant who would make a summary of the sentence in 15 words. This is a phone transcription so there might be conversation about other things, but I want summary about the most important parts of the conversation. Then things that affects the business."
     prompt += "Return the summary in json with a key summary. Here is the transcription: "
     prompt += trascription + "<<<json"
     model = "llama3:70b"
