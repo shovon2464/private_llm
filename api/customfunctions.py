@@ -46,6 +46,7 @@ def makesummary(trascription):
     prompt += trascription + "<<<json"
     model = "llama3:70b"
     url = URL
+    print("I am before sending it to 70b")
     payload = {
                 "model": model,
                 "prompt": prompt,
@@ -54,6 +55,7 @@ def makesummary(trascription):
     response = requests.post(url,json=payload)
     response = response.json()
     response = response.get('response')
+    print(response)
     start_index = response.find('{') 
     end_index = response.rfind('}')+1
     # Extract the JSON string
