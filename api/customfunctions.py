@@ -104,7 +104,13 @@ def risk_analysis_function(policy):
 
 
     #changing the subdeatails to policy
-    data["subdet"] = "policy"
+    data = {
+        "action":"History",
+        "subdet":"policy",
+        "policy":policy,
+        "cookie":"xxx",
+        "xtoken":"ddd"
+    }
     # Making the POST request to get the transaction
     policy = requests.post(url, json=data)
     policy = policy.content.decode()
