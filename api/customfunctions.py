@@ -156,6 +156,7 @@ def risk_analysis_function(policy):
         transaction = response.get('response')
         transaction_big += transaction
     transaction = "transaction: " + transaction_big
+    print("dd"+transaction)
 
 
 
