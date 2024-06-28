@@ -225,6 +225,7 @@ def risk_analysis_function(policy):
     response = requests.post(url,json=payload)
     response = response.json()
     final = response.get('response')
+    result["analysis"] = final
     
     return result
 
