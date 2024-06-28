@@ -391,6 +391,7 @@ class MakeSpeechToTextView2(APIView):
 class RiskAnalysisView(APIView):
     def post(self, request):
         policy = request.POST.get('policy')
+        print("+++++"+policy)
         response = risk_analysis_function(policy)                  
         json.dumps(response)
         return Response(response, status=status.HTTP_200_OK)   
