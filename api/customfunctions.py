@@ -67,8 +67,6 @@ def makesummary(trascription):
 
 def risk_analysis_function(policy):
     url = 'https://crm.uwinsure.com/Api/bisapi_sql.php'
-
-
     def  cleanup(a):
         # Remove JSON symbols
         symbols_to_remove = ['{', '}', '[', ']', ':', ',', '"',"\n"]
@@ -91,7 +89,7 @@ def risk_analysis_function(policy):
     data = {
         "action":"History",
         "subdet":"trans",
-        "policy":672942,
+        "policy":policy,
         "cookie":"xxx",
         "xtoken":"ddd"
     }
@@ -99,7 +97,7 @@ def risk_analysis_function(policy):
     transaction = requests.post(url, json=data)
     transaction = transaction.content.decode()
     transaction = cleanup(transaction)
-    print("-------------------------------------------"+transaction)
+    print(transaction)
 
 
     #changing the subdeatails to policy
@@ -110,7 +108,7 @@ def risk_analysis_function(policy):
     policy = cleanup(policy)
     result["policy"] = policy
     policy = "policy: " + policy
-    print(policy)
+    #print(policy)
 
     #changing the subdeatails to service
     data["subdet"] = "service"
