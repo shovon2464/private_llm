@@ -100,7 +100,7 @@ def risk_analysis_function(policy):
 
     transaction = transaction.content.decode()
     transaction = cleanup(transaction)
-    print(transaction)
+    print("-------------------------------------------"+transaction)
 
 
     #changing the subdeatails to policy
@@ -114,11 +114,10 @@ def risk_analysis_function(policy):
     # Making the POST request to get the transaction
     policy = requests.post(url, json=data)
     policy = policy.content.decode()
-    print(policy)
     policy = cleanup(policy)
     result["policy"] = policy
     policy = "policy: " + policy
-    print(policy)
+    print("++++++++++++++++++++++++++++++++++++++++++++++++"+policy)
 
     #changing the subdeatails to service
     data["subdet"] = "service"
