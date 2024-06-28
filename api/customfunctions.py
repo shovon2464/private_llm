@@ -66,7 +66,7 @@ def makesummary(trascription):
 
 
 def risk_analysis_function(policy):
-    url = 'https://crm.uwinsure.com/Api/bisapi_sql.php'
+    url3 = 'https://crm.uwinsure.com/Api/bisapi_sql.php'
 
 
     def  cleanup(a):
@@ -96,7 +96,7 @@ def risk_analysis_function(policy):
     }
     result = {}
     # Making the POST request to get the transaction
-    transaction = requests.post(url, json=data)
+    transaction = requests.post(url3, json=data)
 
     transaction = transaction.content.decode()
     transaction = cleanup(transaction)
@@ -112,7 +112,7 @@ def risk_analysis_function(policy):
         "xtoken":"ddd"
     }
     # Making the POST request to get the transaction
-    policy = requests.post(url, json=data)
+    policy = requests.post(url3, json=data)
     policy = policy.content.decode()
     policy = cleanup(policy)
     result["policy"] = policy
@@ -122,7 +122,7 @@ def risk_analysis_function(policy):
     #changing the subdeatails to service
     data["subdet"] = "service"
     # Making the POST request to get the notes
-    service = requests.post(url, json=data)
+    service = requests.post(url3, json=data)
     service = service.content.decode()
     service = cleanup(service)
     #print(service)
@@ -131,7 +131,7 @@ def risk_analysis_function(policy):
     #changing the subdeatails to claim
     data["subdet"] = "claim"
     # Making the POST request to get the notes
-    claim = requests.post(url, json=data)
+    claim = requests.post(url3, json=data)
     claim = claim.content.decode()
     claim = cleanup(claim)
     #print(claim)
@@ -139,7 +139,7 @@ def risk_analysis_function(policy):
     #changing the subdeatails to profit
     data["subdet"] = "profit"
     # Making the POST request to get the notes
-    profit = requests.post(url, json=data)
+    profit = requests.post(url3, json=data)
     profit = profit.content.decode()
     profit = cleanup(profit)
     result["profit"] = profit
