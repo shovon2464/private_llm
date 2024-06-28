@@ -141,9 +141,8 @@ def risk_analysis_function(policy):
     model = 'llama3:8b-instruct-fp16'
     
     transaction_main = split_string_into_chunks(transaction)
-    print(transaction_main)
     transaction_big = ""
-    for i in transaction_big:
+    for i in transaction_main:
         prompt = "Below is a transaction drawn by a insurance company. Through the transaction we can understand, what kind of car they drive, how old is the car, current address, and the previous address, what kind of property they have, have they rented out the property, who are they with for the mortgage, with the star rating we can get how many years they have drove. The class of the vehicle is also important. If the class is 01 then it is not used for work, if it is 02 then they drive to work every day, if it is 03 then it is for business. If you see class 36 then it is for commercial use. Try to match the policy number and date of entry to understand how long the car is being driven. Or how old the car was when it was taken. How often they change the address? Do they have any kids? How long is the policy stayed with us. Do they change the policy a lot. Have they add a car and moved a car often. Customer with a lot of transaction without major change of vehicle is generally a high maintenance customer. How loyal are they. How many cancellations they have."
         prompt += "The transaction is given below. You have to extract what you have found from the conditions given above."
         prompt += i
