@@ -66,7 +66,7 @@ def makesummary(trascription):
 
 
 def risk_analysis_function(policy):
-    url3 = 'https://crm.uwinsure.com/Api/bisapi_sql.php'
+    url = 'https://crm.uwinsure.com/Api/bisapi_sql.php'
 
 
     def  cleanup(a):
@@ -86,65 +86,58 @@ def risk_analysis_function(policy):
             chunks.append(big_string[i:i + chunk_size])
         return chunks
 
+    result = {}
     # Creating of json, started with transactiono
     data = {
         "action":"History",
         "subdet":"trans",
-        "policy":policy,
+        "policy":672942,
         "cookie":"xxx",
         "xtoken":"ddd"
     }
-    result = {}
     # Making the POST request to get the transaction
-    transaction = requests.post(url3, json=data)
-
+    transaction = requests.post(url, json=data)
     transaction = transaction.content.decode()
     transaction = cleanup(transaction)
     print("-------------------------------------------"+transaction)
 
 
     #changing the subdeatails to policy
-    data = {
-        "action":"History",
-        "subdet":"policy",
-        "policy":policy,
-        "cookie":"xxx",
-        "xtoken":"ddd"
-    }
+    data["subdet"] = "policy"
     # Making the POST request to get the transaction
-    policy = requests.post(url3, json=data)
+    policy = requests.post(url, json=data)
     policy = policy.content.decode()
     policy = cleanup(policy)
     result["policy"] = policy
     policy = "policy: " + policy
-    print("++++++++++++++++++++++++++++++++++++++++++++++++"+policy)
+    print(policy)
 
     #changing the subdeatails to service
     data["subdet"] = "service"
     # Making the POST request to get the notes
-    service = requests.post(url3, json=data)
+    service = requests.post(url, json=data)
     service = service.content.decode()
     service = cleanup(service)
-    print(service)
+    #print(service)
 
 
     #changing the subdeatails to claim
     data["subdet"] = "claim"
     # Making the POST request to get the notes
-    claim = requests.post(url3, json=data)
+    claim = requests.post(url, json=data)
     claim = claim.content.decode()
     claim = cleanup(claim)
-    print(claim)
+    #print(claim)
 
     #changing the subdeatails to profit
     data["subdet"] = "profit"
     # Making the POST request to get the notes
-    profit = requests.post(url3, json=data)
+    profit = requests.post(url, json=data)
     profit = profit.content.decode()
     profit = cleanup(profit)
     result["profit"] = profit
     profit = "profit: "+profit
-    print(profit)
+    #print(profit)
 
     url = 'http://localhost:11434/api/generate'
     model = 'llama3:8b-instruct-fp16'
