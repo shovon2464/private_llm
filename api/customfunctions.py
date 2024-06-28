@@ -125,7 +125,7 @@ def risk_analysis_function(policy):
     service = requests.post(url3, json=data)
     service = service.content.decode()
     service = cleanup(service)
-    #print(service)
+    print(service)
 
 
     #changing the subdeatails to claim
@@ -134,7 +134,7 @@ def risk_analysis_function(policy):
     claim = requests.post(url3, json=data)
     claim = claim.content.decode()
     claim = cleanup(claim)
-    #print(claim)
+    print(claim)
 
     #changing the subdeatails to profit
     data["subdet"] = "profit"
@@ -144,8 +144,7 @@ def risk_analysis_function(policy):
     profit = cleanup(profit)
     result["profit"] = profit
     profit = "profit: "+profit
-    
-    #print(profit)
+    print(profit)
 
     url = 'http://localhost:11434/api/generate'
     model = 'llama3:8b-instruct-fp16'
