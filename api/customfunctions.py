@@ -74,7 +74,7 @@ def risk_analysis_function(policy):
         symbols_to_remove = ['{', '}', '[', ']', ':', ',', '"',"\n"]
         plain_text = a
         for symbol in symbols_to_remove:
-            plain_text = plain_text.replace(symbol, '')
+            plain_text = plain_text.replace(symbol, ' ')
 
         return plain_text
 
@@ -111,7 +111,7 @@ def risk_analysis_function(policy):
     policy = cleanup(policy)
     result["policy"] = policy
     policy = "policy: " + policy
-    #print(policy)
+    print(policy)
 
     #changing the subdeatails to service
     data["subdet"] = "service"
@@ -161,9 +161,7 @@ def risk_analysis_function(policy):
         transaction = response.get('response')
         transaction_big += transaction
     result["transaction"] = transaction_big
-    print(transaction_big)
     transaction = "transaction: " + transaction_big
-    print("dd"+transaction)
 
 
 
