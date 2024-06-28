@@ -94,7 +94,7 @@ def risk_analysis_function(policy):
         "cookie":"xxx",
         "xtoken":"ddd"
     }
-
+    result = {}
     # Making the POST request to get the transaction
     transaction = requests.post(url, json=data)
 
@@ -109,6 +109,8 @@ def risk_analysis_function(policy):
     policy = requests.post(url, json=data)
     policy = policy.content.decode()
     policy = cleanup(policy)
+    result["policy"] = policy
+    policy = "policy: " + policy
     #print(policy)
 
     #changing the subdeatails to service
@@ -134,11 +136,14 @@ def risk_analysis_function(policy):
     profit = requests.post(url, json=data)
     profit = profit.content.decode()
     profit = cleanup(profit)
+    result["profit"] = profit
+    profit = "profit: "+profit
+    
     #print(profit)
 
     url = 'http://localhost:11434/api/generate'
     model = 'llama3:8b-instruct-fp16'
-
+    
     transaction_main = split_string_into_chunks(transaction)
     transaction_big = ""
     for i in transaction_big:
@@ -155,6 +160,7 @@ def risk_analysis_function(policy):
         response = response.json()
         transaction = response.get('response')
         transaction_big += transaction
+    result["transaction"] = transaction_big
     print(transaction_big)
     transaction = "transaction: " + transaction_big
     print("dd"+transaction)
@@ -178,6 +184,7 @@ def risk_analysis_function(policy):
         response = response.json()
         claim = response.get('response')
         claim_big += claim
+    result["claims"] = claim_big
     claims = "claims: "+ claim_big
 
 
@@ -202,7 +209,9 @@ def risk_analysis_function(policy):
         service = response.get('response')
         service_big += service
 
+    result["service"] = service_big
     service = "service: " + service_big
+    
 
     prompt += "I have consolidated few reports of claims, transaction, service, profit, policy of a insurance customer. You are a insurance risk assessment model. You will analyze the whole report and give a score from -100 to +100. Write the reasons why are you giving this score. Definitely give a score from -100 to +100"
     prompt += transaction+claims+service+profit+policy
@@ -216,7 +225,7 @@ def risk_analysis_function(policy):
     response = requests.post(url,json=payload)
     response = response.json()
     final = response.get('response')
-    result = {"long":transaction+claims+service+profit+policy, "analysis":final}
+    
     return result
 
     
