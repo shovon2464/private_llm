@@ -18,7 +18,7 @@ import whisper
 from rest_framework.renderers import JSONRenderer
 import base64
 import random
-from .customfunctions import languagetest,translatelanguage,makesummary
+from .customfunctions import languagetest,translatelanguage,makesummary, risk_analysis_function
 from faster_whisper import WhisperModel
 os.environ["KMP_DUPLICATE_LIB_OK"]="TRUE"
 
@@ -386,6 +386,16 @@ class MakeSpeechToTextView2(APIView):
         }
         json.dumps(data)
         return Response(data, status=status.HTTP_200_OK)
+
+@method_decorator(csrf_exempt, name='dispatch')
+class RiskAnalysisView(APIView):
+    def post(self, request):
+        policy = request.POST.get('policy')
+        response = risk_analysis_function(policy)                  
+        json.dumps(response)
+        return Response(response, status=status.HTTP_200_OK)   
+
+
     
 @method_decorator(csrf_exempt, name='dispatch')
 class RedactTextView(View):
