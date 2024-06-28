@@ -148,7 +148,7 @@ def risk_analysis_function(policy):
     transaction_big = ""
     for i in transaction_big:
         prompt = "Below is a transaction drawn by a insurance company. Through the transaction we can understand, what kind of car they drive, how old is the car, current address, and the previous address, what kind of property they have, have they rented out the property, who are they with for the mortgage, with the star rating we can get how many years they have drove. The class of the vehicle is also important. If the class is 01 then it is not used for work, if it is 02 then they drive to work every day, if it is 03 then it is for business. If you see class 36 then it is for commercial use. Try to match the policy number and date of entry to understand how long the car is being driven. Or how old the car was when it was taken. How often they change the address? Do they have any kids? How long is the policy stayed with us. Do they change the policy a lot. Have they add a car and moved a car often. Customer with a lot of transaction without major change of vehicle is generally a high maintenance customer. How loyal are they. How many cancellations they have."
-        prompt += "The transaction is given below. You have extract what you have found from the conditions given above."
+        prompt += "The transaction is given below. You have to extract what you have found from the conditions given above."
         prompt += i
 
         payload = {
@@ -171,7 +171,7 @@ def risk_analysis_function(policy):
     claim_big = ""
     for i in claim_main:
         prompt = "Anything within a range of 7 days, is usually a same claim. When you have open and close on the same date, usually it is a declined claim. Occasionally you might get how much money we paid up."
-        prompt += "Below is the json of the claims. Now write what you have found out from the rules stated above with reasoning"
+        prompt += "Below is the info of the claims. Now write what you have found out from the rules stated above with reasoning"
         prompt += i
 
         payload = {
@@ -192,7 +192,7 @@ def risk_analysis_function(policy):
     service_main = split_string_into_chunks(service)
     service_big = ""
     for i in service_main:
-        prompt = "Below is the json of the service history of a customer in json. From this json I want you to analyze it and fine the following this. "
+        prompt = "Below is the info of the service history of a customer. From this info I want you to analyze it and fine the following this. "
         prompt += "From, it gives you the number of calls and notes. It tells you how frequently we interact with the customer and if they have payment issues. They may have missed a payment. They have changed the bank. From it you can judge if this customer is a high maintenance. This might be a trouble guy who always tries to get claims or missed payments.  "
         prompt += "Now write a small report with reasoning."
         prompt += i
