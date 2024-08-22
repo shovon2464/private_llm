@@ -284,38 +284,67 @@ class RecievePDFView(APIView):
 @method_decorator(csrf_exempt, name='dispatch')
 class MakeSpeechToTextView(APIView):
     def post(self, request):
-        random_integer = random.randint(1, 10000000)
-        with open("./checkprocess.txt", "w") as file:
-            file.write(str(random_integer))
-        audio: UploadedFile = request.FILES["audio_file"]      
-        # Save the uploaded PDF file to a specific location
-        file_path = './output.wav'
-        with open(file_path, 'wb') as file:
-                    for chunk in audio.chunks():
-                        file.write(chunk)
-                        
-        model_size = "large-v3"
-        model = WhisperModel(model_size, device="cuda", compute_type="float16")
-        segments, info = model.transcribe("output.wav", beam_size=5)
-        transcription = ""
-        for segment in segments:
-            transcription += segment.text
-        print("Detected language '%s' with probability %f" % (info.language, info.language_probability))
-        print(transcription)
-        
-        
-        if "en" != info.language or ( "en" == info.language and info.language_probability<0.97):
-            translation = translatelanguage(transcription)
-            translation = json.loads(translation)
-            translation = translation["translation"]
-            transcription = translation
-            
-        
-        data = {
-            "transcription": transcription,
-        }
-        json.dumps(data)
-        return Response(data, status=status.HTTP_200_OK)
+        try:
+            # Generate a random integer and save it to a file
+            random_integer = random.randint(1, 10000000)
+            with open("./checkprocess.txt", "w") as file:
+                file.write(str(random_integer))
+
+            # Ensure that 'audio_file' is in the request.FILES
+            if 'audio_file' not in request.FILES:
+                return Response({"error": "No audio file provided."}, status=status.HTTP_400_BAD_REQUEST)
+
+            audio: UploadedFile = request.FILES["audio_file"]
+
+            # Validate that the file is an audio file (you can add more checks if necessary)
+            if not audio.name.endswith(('.wav', '.mp3', '.m4a')):
+                return Response({"error": "Unsupported audio format."}, status=status.HTTP_400_BAD_REQUEST)
+
+            # Save the uploaded audio file to a specific location
+            file_path = './output.wav'
+            with open(file_path, 'wb') as file:
+                for chunk in audio.chunks():
+                    file.write(chunk)
+
+            # Load the Whisper model
+            model_size = "large-v3"
+            try:
+                model = WhisperModel(model_size, device="cuda", compute_type="float16")
+            except Exception as e:
+                return Response({"error": "Failed to load Whisper model.", "details": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+            # Transcribe the audio file
+            try:
+                segments, info = model.transcribe(file_path, beam_size=5)
+            except Exception as e:
+                return Response({"error": "Failed to transcribe audio.", "details": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+            # Combine the transcription
+            transcription = ""
+            for segment in segments:
+                transcription += segment.text
+
+            print("Detected language '%s' with probability %f" % (info.language, info.language_probability))
+            print(transcription)
+
+            # Handle non-English transcriptions
+            if "en" != info.language or ("en" == info.language and info.language_probability < 0.97):
+                try:
+                    translation = translatelanguage(transcription)
+                    translation = json.loads(translation)
+                    transcription = translation["translation"]
+                except Exception as e:
+                    return Response({"error": "Translation failed.", "details": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+            # Prepare the response data
+            data = {
+                "transcription": transcription,
+            }
+            return Response(data, status=status.HTTP_200_OK)
+
+        except Exception as e:
+            # Handle unexpected errors
+            return Response({"error": "An error occurred during processing.", "details": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
 @method_decorator(csrf_exempt, name='dispatch')
