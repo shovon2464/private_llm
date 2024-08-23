@@ -328,7 +328,7 @@ class MakeSpeechToTextView(APIView):
             print(transcription)
 
             # Handle non-English transcriptions
-            if "en" != info.language or ("en" == info.language and info.language_probability < 0.97):
+            if "en" != info.language or ("en" == info.language and info.language_probability < 0.85):
                 try:
                     translation = translatelanguage(transcription)
                     translation = json.loads(translation)
