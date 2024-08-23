@@ -22,7 +22,7 @@ def languagetest(transcription):
     return response
 
 def translatelanguage(transcription):
-    prompt = transcription + "\nTranslate the above sentences in English. If the whole language is English then do not translate. For example return {\n\"translation\": I emailed you back a couple days ago and I was waiting for a response. And you got moved on a dress down? Let me check again. Also, I can't really hear you like well. It's so muffled. Oh, okay. Hang on a moment. Hey, is that better? Yeah, much better. Alright, crappy Bluetooth. \"\"}.Return it in JSON < '''json"
+    prompt = transcription + "\nTranslate the above sentences in English. If the whole language is English then do not translate. Return in JSON. For example return {\n\"translation\": I emailed you back a couple days ago and I was waiting for a response. And you got moved on a dress down? Let me check again. Also, I can't really hear you like well. It's so muffled. Oh, okay. Hang on a moment. Hey, is that better? Yeah, much better. Alright, crappy Bluetooth. \"\"}.Return it in JSON < '''json"
     url = URL
     payload = {
                 "model": "llama3.1:8b-instruct-fp16",
