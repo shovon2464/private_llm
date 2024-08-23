@@ -32,6 +32,7 @@ def translatelanguage(transcription):
     response = requests.post(url,json=payload)
     response = response.json()
     response = response.get('response')
+    print(response)
     start_index = response.find('{') 
     end_index = response.rfind('}')+1
 
