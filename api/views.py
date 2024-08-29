@@ -327,17 +327,17 @@ class MakeSpeechToTextView(APIView):
             print("Detected language '%s' with probability %f" % (info.language, info.language_probability))
             print(transcription)
 
-            translate = "not translated"
-            # Handle non-English transcriptions
-            if "en" != info.language or ("en" == info.language and info.language_probability < 0.95):
-                try:
-                    translation = translatelanguage(transcription)
-                except Exception as e:
-                    return Response({"error": "Translation failed.", "details": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+            translation = translatelanguage(transcription)
+            # # Handle non-English transcriptions
+            # if "en" != info.language or ("en" == info.language and info.language_probability < 0.95):
+            #     try:
+            #         translation = translatelanguage(transcription)
+            #     except Exception as e:
+            #         return Response({"error": "Translation failed.", "details": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
             # Prepare the response data
             data = {
-                "transcription": translate,
+                "transcription": translation,
             }
             return Response(data, status=status.HTTP_200_OK)
 
