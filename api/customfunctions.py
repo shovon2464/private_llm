@@ -1,7 +1,45 @@
 import requests
+from easynmt import EasyNMT
+
 MODEL = "llama3.1:8b-instruct-fp16"
 #MODEL = "llama3:8b-instruct-q6_k"
 URL = 'http://localhost:11434/api/generate'
+
+
+def translatelanguage(transcription):
+    try:
+        # Step 1: Try the 'opus-mt' model
+        model = EasyNMT('opus-mt')
+        translation = model.translate(transcription, target_lang='en')
+        return translation
+    except Exception as e:
+        print(f"Error using 'opus-mt': {e}")
+
+    try:
+        # Step 2: If the first model fails, try the 'm2m_100_1.2B' model
+        model = EasyNMT('m2m_100_1.2B')
+        translation = model.translate(transcription, target_lang='en')
+        return translation
+    except Exception as e:
+        print(f"Error using 'm2m_100_1.2B': {e}")
+
+    try:
+        # Step 3: If both models fail, use a custom API request
+        prompt = transcription + "\nTranslate the above sentences in English. Please just translate it do not add anything extra."
+        url = "YOUR_API_URL_HERE"
+        payload = {
+            "model": "llama3.1:8b-instruct-fp16",
+            "prompt": prompt,
+            "stream": False,
+        }
+        response = requests.post(url, json=payload)
+        response.raise_for_status()  # Raise an error if the request fails
+        data = response.json()
+        return data.get('response')
+    except Exception as e:
+        print(f"Error using custom API: {e}")
+        return None  # Fallback return if all methods fail
+    
 def languagetest(transcription):
     prompt = transcription[0:200] + "What is the language of it. For example if the language is english please return {\n\"language\": \"eng\"}.Return it in JSON < '''json"
     url = URL
@@ -21,7 +59,7 @@ def languagetest(transcription):
     print(response)
     return response
 
-def translatelanguage(transcription):
+def translatelanguage2(transcription):
     prompt = transcription + "\nTranslate the above sentences in English. If the whole language is English then do not translate. Return in JSON. For example return {\n\"translation\": I emailed you back a couple days ago and I was waiting for a response. And you got moved on a dress down? Let me check again. Also, I can't really hear you like well. It's so muffled. Oh, okay. Hang on a moment. Hey, is that better? Yeah, much better. Alright, crappy Bluetooth. \"\"}.Return it in JSON < '''json"
     url = URL
     payload = {

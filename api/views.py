@@ -328,11 +328,9 @@ class MakeSpeechToTextView(APIView):
             print(transcription)
 
             # Handle non-English transcriptions
-            if "en" != info.language or ("en" == info.language and info.language_probability < 0.80):
+            if "en" != info.language or ("en" == info.language and info.language_probability < 0.95):
                 try:
                     translation = translatelanguage(transcription)
-                    translation = json.loads(translation)
-                    transcription = translation["translation"]
                 except Exception as e:
                     return Response({"error": "Translation failed.", "details": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
