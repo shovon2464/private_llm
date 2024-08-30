@@ -8,6 +8,14 @@ URL = 'http://localhost:11434/api/generate'
 
 def translatelanguage(transcription):
     try:
+        # Step 2: If the first model fails, try the 'opus-mt' model
+        print("Trying opus-mt")
+        model = EasyNMT('opus-mt')
+        translation = model.translate(transcription, target_lang='en')
+        return translation
+    except Exception as e:
+        print(f"Error using 'm2m_100_1.2B': {e}")
+    try:
         # Step 1: Try the 'm2m_100_1.2B' model
         print("Trying m2m_100_418M")
         model = EasyNMT('m2m_100_418M')
@@ -16,14 +24,6 @@ def translatelanguage(transcription):
     except Exception as e:
         print(f"Error using 'opus-mt': {e}")
 
-    try:
-        # Step 2: If the first model fails, try the 'opus-mt' model
-        print("Trying opus-mt")
-        model = EasyNMT('opus-mt')
-        translation = model.translate(transcription, target_lang='en')
-        return translation
-    except Exception as e:
-        print(f"Error using 'm2m_100_1.2B': {e}")
 
     try:
         # Step 3: If both models fail, use a custom API request
