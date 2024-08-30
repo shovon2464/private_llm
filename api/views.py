@@ -326,8 +326,10 @@ class MakeSpeechToTextView(APIView):
 
             print("Detected language '%s' with probability %f" % (info.language, info.language_probability))
             print(transcription)
-
-            translation = translatelanguage(transcription)
+            translation = "Not Translated yet"
+            if "en" != info.language or ("en" == info.language and info.language_probability < 0.88):
+                translation = translatelanguage(transcription)
+            
             # # Handle non-English transcriptions
             # if "en" != info.language or ("en" == info.language and info.language_probability < 0.95):
             #     try:
