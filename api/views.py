@@ -340,8 +340,7 @@ class MakeSpeechToTextView(APIView):
             #         translation = translatelanguage(transcription)
             #     except Exception as e:
             #         return Response({"error": "Translation failed.", "details": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-
-            # Prepare the response data
+            
             data = {
                 "transcription": translation,
             }
