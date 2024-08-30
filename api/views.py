@@ -280,9 +280,79 @@ class RecievePDFView(APIView):
             # If 'document' key is missing in the request data, return an error response
             return Response({"error": "No file uploaded. Please provide a PDF file."}, status=status.HTTP_400_BAD_REQUEST)
              
-
 @method_decorator(csrf_exempt, name='dispatch')
 class MakeSpeechToTextView(APIView):
+    def post(self, request):
+        try:
+            data = json.loads(request.body)
+            uniqueid = data.get('uniqueid')
+            voice_file_url = data.get('voice_file_url')
+            calling_party_ip = data.get('calling_party_ip')
+            response = requests.get(voice_file_url, stream=True)
+            response.raise_for_status()  
+            save_path = './output.wav'
+            
+            total_size = int(response.headers.get('content-length', 0))
+            downloaded_size = 0
+            with open(save_path, 'wb') as file:
+                # Download the file in chunks
+                for chunk in response.iter_content(chunk_size=1024 * 1024):  # 1 MB chunks
+                    if chunk:  # Filter out keep-alive chunks
+                        file.write(chunk)
+                        downloaded_size += len(chunk)
+                        # Print progress (optional)
+                        print(f"Downloaded {downloaded_size / (1024 * 1024):.2f} MB of {total_size / (1024 * 1024):.2f} MB", end='\r')
+
+            print(f"\nFile downloaded successfully and saved to {save_path}")
+
+            # Save the uploaded audio file to a specific location
+            file_path = './output.wav'
+            with open(file_path, 'wb') as file:
+                for chunk in audio.chunks():
+                    file.write(chunk)
+
+            # Load the Whisper model
+            model_size = "large-v3"
+            try:
+                model = WhisperModel(model_size, device="cuda", compute_type="float16")
+            except Exception as e:
+                return Response({"error": "Failed to load Whisper model.", "details": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+            # Transcribe the audio file
+            try:
+                segments, info = model.transcribe(file_path, beam_size=5)
+            except Exception as e:
+                return Response({"error": "Failed to transcribe audio.", "details": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+            # Combine the transcription
+            transcription = ""
+            for segment in segments:
+                transcription += segment.text
+
+            print("Detected language '%s' with probability %f" % (info.language, info.language_probability))
+            print(transcription)
+            translation = "Not Translated yet"
+            if "en" != info.language or ("en" == info.language and info.language_probability < 0.88):
+                translation = translatelanguage(transcription)
+            
+            # # Handle non-English transcriptions
+            # if "en" != info.language or ("en" == info.language and info.language_probability < 0.95):
+            #     try:
+            #         translation = translatelanguage(transcription)
+            #     except Exception as e:
+            #         return Response({"error": "Translation failed.", "details": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+            # Prepare the response data
+            data = {
+                "transcription": translation,
+            }
+            return Response(data, status=status.HTTP_200_OK)
+
+        except Exception as e:
+            # Handle unexpected errors
+            return Response({"error": "An error occurred during processing.", "details": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+@method_decorator(csrf_exempt, name='dispatch')
+class MakeSpeechToTextView2(APIView):
     def post(self, request):
         try:
             # Generate a random integer and save it to a file
@@ -347,75 +417,6 @@ class MakeSpeechToTextView(APIView):
             # Handle unexpected errors
             return Response({"error": "An error occurred during processing.", "details": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
-
-@method_decorator(csrf_exempt, name='dispatch')
-class MakeSpeechToTextView2(APIView):
-    def post(self, request):
-        random_integer = random.randint(1, 10000000)
-        with open("./checkprocess.txt", "w") as file:
-            file.write(str(random_integer))
-        audio: UploadedFile = request.FILES["audio_file"]      
-        # Save the uploaded PDF file to a specific location
-        file_path = './output.wav'
-        with open(file_path, 'wb') as file:
-                    for chunk in audio.chunks():
-                        file.write(chunk)
-        model = whisper.load_model('tiny')
-        
-        
-        result = model.transcribe('output.wav', fp16=False)
-
-        # #load audio and pad/trim it to fit 30 seconds
-        # audio = whisper.load_audio("output.wav")
-        
-        # #make log-Mel spectrogram and move to the same device as the model
-        # mel = whisper.log_mel_spectrogram(audio).to(model.device)
-        
-        # #decode the audio
-        # options = whisper.DecodingOptions()
-        # result = whisper.decode(model,mel,options)
-        #result = model.transcribe('output.wav', fp16=False)
-
-        transcription = result["text"]
-        language = languagetest(transcription)
-        language = json.loads(language)
-        language = language["language"]
-        
-        if "en" not in language:
-            model = whisper.load_model('medium')
-            result = model.transcribe('output.wav', fp16=False)
-            transcription = result["text"]
-            translation = translatelanguage(transcription)
-            translation = json.loads(translation)
-            translation = translation["translation"]
-            transcription = translation
-        else:
-            model = whisper.load_model('small.en')
-            result = model.transcribe('output.wav', fp16=False)
-            transcription = result["text"]
-        
-        url2 = "http://192.168.0.64:8000/api/retrivesummarylatest/"
-        payload = {
-        "document":transcription,
-        "number_of_words":"20"
-        }
-        response = requests.post(url2, data=payload)      
-        summary = response.json()
-        start_index = summary .find('{') 
-        end_index = summary.rfind('}')+1
-
-        # Extract the JSON string
-        json_string = summary[start_index:end_index]
-
-        # Parse the JSON string
-        summary = json.loads(json_string)
-        summary = summary["summary"]
-        data = {
-            "transcription": transcription,
-            "summary": summary
-        }
-        json.dumps(data)
-        return Response(data, status=status.HTTP_200_OK)
 
 @method_decorator(csrf_exempt, name='dispatch')
 class RiskAnalysisView(APIView):
