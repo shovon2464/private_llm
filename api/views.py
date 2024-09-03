@@ -284,31 +284,20 @@ class RecievePDFView(APIView):
 class MakeSpeechToTextView(APIView):
     def post(self, request):
         try:
-            # Parse incoming JSON data from the request body
             data = json.loads(request.body)
-            
-            # Safely access each key, providing a default value if the key is missing
-            uniqueid = data.get('uniqueid', 'N/A')
+            uniqueid = data.get('uniqueid')
             voice_file_url = data.get('voice_file_url')
-            calling_party_ip = data.get('calling_party_ip', 'N/A')
-
-            if not voice_file_url:
-                return JsonResponse({"error": "voice_file_url is missing"}, status=400)
-            
-            # Attempt to download the file
+            calling_party_ip = data.get('calling_party_ip')
             response = requests.get(voice_file_url, stream=True)
-            response.raise_for_status()  # This will raise an error for bad responses
+            response.raise_for_status()  
+            save_path = './outputdown.wav'
             
-            save_path = './outputdown.wav'  # Path to save the downloaded file
-            
-            total_size = int(response.headers.get('content-length', 0))  # Total file size
+            total_size = int(response.headers.get('content-length', 0))
             downloaded_size = 0
-            
-            # Save the audio file in binary mode
             with open(save_path, 'wb') as file:
-                # Download and write the file in chunks
+                # Download the file in chunks
                 for chunk in response.iter_content(chunk_size=1024 * 1024):  # 1 MB chunks
-                    if chunk:  # Ensure no empty chunks are written
+                    if chunk:  # Filter out keep-alive chunks
                         file.write(chunk)
                         downloaded_size += len(chunk)
                         # Print progress (optional)
@@ -316,7 +305,9 @@ class MakeSpeechToTextView(APIView):
 
             print(f"\nFile downloaded successfully and saved to {save_path}")
 
-    
+            # Save the uploaded audio file to a specific location
+            file_path = './outputdown.wav'
+
             # Load the Whisper model
             model_size = "large-v3"
             try:
@@ -358,12 +349,6 @@ class MakeSpeechToTextView(APIView):
         except Exception as e:
             # Handle unexpected errors
             return Response({"error": "An error occurred during processing.", "details": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-        except json.JSONDecodeError:
-            print("Error parsing JSON data. Ensure the request body contains valid JSON.")
-        except requests.exceptions.RequestException as e:
-            print(f"Error during file download: {e}")
-        except Exception as e:
-            print(f"An unexpected error occurred: {e}")
 @method_decorator(csrf_exempt, name='dispatch')
 class MakeSpeechToTextView2(APIView):
     def post(self, request):
