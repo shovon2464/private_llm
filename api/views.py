@@ -290,7 +290,7 @@ class MakeSpeechToTextView(APIView):
             calling_party_ip = data.get('calling_party_ip')
             response = requests.get(voice_file_url, stream=True)
             response.raise_for_status()  
-            save_path = './outputdown.wav'
+            save_path = f'./{uniqueid}.wav'
             
             total_size = int(response.headers.get('content-length', 0))
             downloaded_size = 0
@@ -306,7 +306,7 @@ class MakeSpeechToTextView(APIView):
             print(f"\nFile downloaded successfully and saved to {save_path}")
 
             # Save the uploaded audio file to a specific location
-            file_path = './outputdown.wav'
+            file_path = f'./{uniqueid}.wav'
 
             # Load the Whisper model
             model_size = "large-v3"
