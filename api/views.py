@@ -344,6 +344,7 @@ class MakeSpeechToTextView(APIView):
             data = {
                 "transcription": translation,
             }
+            os.remove(file_path)
             return Response(data, status=status.HTTP_200_OK)
 
         except Exception as e:
